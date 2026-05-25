@@ -39,6 +39,14 @@ setup_haproxy_config() {
 
 start_rsyslog() {
     if command -v rsyslogd >/dev/null 2>&1; then
+        if [ -s /run/rsyslogd.pid ]; then
+            rsyslog_pid="$(cat /run/rsyslogd.pid 2>/dev/null || true)"
+            if [ -n "${rsyslog_pid}" ] && kill -0 "${rsyslog_pid}" 2>/dev/null; then
+                return
+            fi
+            rm -f /run/rsyslogd.pid
+        fi
+
         mkdir -p /run/rsyslogd
         rsyslogd
     fi
@@ -46,6 +54,14 @@ start_rsyslog() {
 
 start_cron() {
     if command -v cron >/dev/null 2>&1; then
+        if [ -s /run/crond.pid ]; then
+            cron_pid="$(cat /run/crond.pid 2>/dev/null || true)"
+            if [ -n "${cron_pid}" ] && kill -0 "${cron_pid}" 2>/dev/null; then
+                return
+            fi
+            rm -f /run/crond.pid
+        fi
+
         cron
     fi
 }
@@ -58,4 +74,8 @@ if [ "$(id -u)" = "0" ]; then
     start_cron
 fi
 
-exec /docker-entrypoint.sh "$@"
+if command -v docker-entrypoint.sh >/dev/null 2>&1; then
+    exec docker-entrypoint.sh "$@"
+fi
+
+exec "$@"
