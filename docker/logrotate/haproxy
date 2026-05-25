@@ -1,0 +1,13 @@
+/var/log/haproxy/haproxy.log {
+    daily
+    rotate 365
+    maxage 365
+    missingok
+    notifempty
+    compress
+    dateext
+    dateformat -%Y%m%d
+    copytruncate
+    create 0640 root root
+    su root root
+}

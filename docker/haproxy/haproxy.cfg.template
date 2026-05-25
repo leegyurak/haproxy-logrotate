@@ -1,0 +1,38 @@
+global
+    log 127.0.0.1:514 local0
+    maxconn __HAPROXY_MAXCONN__
+
+defaults
+    log global
+    mode tcp
+    option tcplog
+    option dontlognull
+    option log-health-checks
+    timeout connect 5s
+    timeout client 1m
+    timeout server 1m
+
+frontend postgres_write
+    bind *:__HAPROXY_WRITE_PORT__
+    default_backend postgres_master
+
+backend postgres_master
+    option tcp-check
+    tcp-check connect
+    server master __POSTGRES_MASTER_HOST__:__POSTGRES_MASTER_PORT__ check
+
+frontend postgres_read
+    bind *:__HAPROXY_READ_PORT__
+    default_backend postgres_replica
+
+backend postgres_replica
+    option tcp-check
+    tcp-check connect
+    server replica __POSTGRES_REPLICA_HOST__:__POSTGRES_REPLICA_PORT__ check
+
+frontend stats
+    mode http
+    bind *:__HAPROXY_STATS_PORT__
+    stats enable
+    stats uri /
+    stats refresh 10s
