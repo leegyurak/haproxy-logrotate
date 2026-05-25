@@ -2,6 +2,13 @@ global
     log 127.0.0.1:514 local0
     maxconn __HAPROXY_MAXCONN__
 
+resolvers docker
+    nameserver dns 127.0.0.11:53
+    resolve_retries 3
+    timeout resolve 1s
+    timeout retry 1s
+    hold valid 10s
+
 defaults
     log global
     mode tcp
@@ -19,7 +26,7 @@ frontend postgres_write
 backend postgres_master
     option tcp-check
     tcp-check connect
-    server master __POSTGRES_MASTER_HOST__:__POSTGRES_MASTER_PORT__ check
+    server master __POSTGRES_MASTER_HOST__:__POSTGRES_MASTER_PORT__ check resolvers docker init-addr libc,none
 
 frontend postgres_read
     bind *:__HAPROXY_READ_PORT__
@@ -28,7 +35,7 @@ frontend postgres_read
 backend postgres_replica
     option tcp-check
     tcp-check connect
-    server replica __POSTGRES_REPLICA_HOST__:__POSTGRES_REPLICA_PORT__ check
+    server replica __POSTGRES_REPLICA_HOST__:__POSTGRES_REPLICA_PORT__ check resolvers docker init-addr libc,none
 
 frontend stats
     mode http

@@ -66,6 +66,7 @@ docker compose up -d
 ```
 
 `../postgresql-logrotate`의 master/replica와 함께 테스트하려면 같은 Docker network에서 실행되도록 붙이거나, `.env`의 DB host 값을 접근 가능한 주소로 바꾸세요.
+HAProxy는 Docker DNS resolver를 사용하므로 `postgres-master`, `postgres-replica`가 나중에 같은 network에 붙어도 재해석할 수 있습니다.
 
 예시:
 
